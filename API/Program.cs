@@ -9,6 +9,8 @@ builder.Services.AddDbContext<StoreContext>(x =>
     x.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -28,7 +30,7 @@ app.MapControllers();
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 var storeContext = services.GetRequiredService<StoreContext>();
-var loggerFactory=services.GetRequiredService<ILoggerFactory>();
+var loggerFactory = services.GetRequiredService<ILoggerFactory>();
 //var identityContext = services.GetRequiredService<AppIdentityDbContext>();
 //var userManager = services.GetRequiredService<UserManager<AppUser>>();
 var logger = services.GetRequiredService<ILogger<Program>>();
