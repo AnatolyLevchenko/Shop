@@ -362,4 +362,10 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /API/appsettings.json
+
+# Db files
 *.db
+*.db-shm
+*.db-wal
+/API/skinet.db-wal
+/API/skinet.db-shm
