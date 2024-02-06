@@ -14,9 +14,9 @@ public class ProductsController(IGenericRepository<Product> productRepository,
                                 IMapper mapper) : BaseApiController
 {
     [HttpGet]
-    public async Task<IActionResult> GetProducts()
+    public async Task<IActionResult> GetProducts(string? sort)
     {
-        var spec = new ProductsWithTypesAndBrandsSpecification();
+        var spec = new ProductsWithTypesAndBrandsSpecification(sort);
         var products = await productRepository.ListAsync(spec);
 
         return Ok(mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products));
