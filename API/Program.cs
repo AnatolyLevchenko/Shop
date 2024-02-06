@@ -13,6 +13,13 @@ builder.Services.AddDbContext<StoreContext>(x =>
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddApplicationServices();
 builder.Services.AddSwaggerDocumentation();
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.AllowAnyHeader().AllowAnyHeader().WithOrigins("https://localhost:4200");
+    });
+});
 
 
 var app = builder.Build();
@@ -20,6 +27,7 @@ app.UseMiddleware<ExceptionMiddleware>();
 app.UseStatusCodePagesWithReExecute("/errors/{0}");
 app.UseSwaggerDocumentation();
 app.UseStaticFiles();
+app.UseCors("CorsPolicy");
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Errors;
+using API.Helpers;
 using AutoMapper;
 using Core.Entities;
 using Core.Interface;
@@ -17,9 +18,12 @@ public class ProductsController(IGenericRepository<Product> productRepository,
     public async Task<IActionResult> GetProducts([FromQuery]ProductSpecParams productParams)
     {
         var spec = new ProductsWithTypesAndBrandsSpecification(productParams);
+        var countSpec = new ProductWithFilterForCountSpecification(productParams);
+        var totalItems = await productRepository.CountAsync(countSpec);
         var products = await productRepository.ListAsync(spec);
+        var data = mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
 
-        return Ok(mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products));
+        return Ok(new Pagination<ProductToReturnDto>(productParams.PageIndex,productParams.PageSize,totalItems,data));
     }
 
     [HttpGet("{id}")]
