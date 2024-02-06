@@ -1,11 +1,8 @@
-using API.Errors;
+using API.Extensions;
 using API.Helpers;
 using API.Middleware;
-using Core.Interface;
 using Infrastructure.Data;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,41 +10,15 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<StoreContext>(x =>
     x.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
+builder.Services.AddApplicationServices();
+builder.Services.AddSwaggerDocumentation();
 
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-{
-    options.InvalidModelStateResponseFactory = actionContext =>
-    {
-        var errors = actionContext.ModelState.Where(e => e.Value != null && e.Value.Errors.Count > 0)
-            .SelectMany(x => x.Value!.Errors).Select(x => x.ErrorMessage).ToArray();
-        var errorResponse = new ApiValidationErrorResponse()
-        {
-            Errors = errors
-        };
-
-        return new BadRequestObjectResult(errorResponse);
-    };
-});
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "API",
-        Version = "v1",
-    });
-});
 
 var app = builder.Build();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseStatusCodePagesWithReExecute("/errors/{0}");
-
-app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerDocumentation();
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
